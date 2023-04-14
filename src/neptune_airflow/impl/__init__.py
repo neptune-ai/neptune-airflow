@@ -26,10 +26,17 @@ from typing import (
 )
 
 from airflow.models import Variable
-from neptune import (
-    Run,
-    init_run,
-)
+
+try:
+    from neptune import (
+        Run,
+        init_run,
+    )
+except ImportError:
+    from neptune.new import (
+        init_run,
+        Run,
+    )
 
 from neptune_airflow.impl.version import __version__
 
