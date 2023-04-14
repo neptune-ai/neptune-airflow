@@ -1,0 +1,27 @@
+---
+name: Install airflow
+description: Install airflow with correct constraint file
+inputs:
+  working_directory:
+    description: "Working directory"
+    required: false
+    default: .
+
+  python-version:
+    description: version for which to obtain constraints file
+    required: true
+runs:
+  using: "composite"
+  steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+      with:
+        repository: neptune-ai/neptune-airflow
+        path: ${{ inputs.working_directory }}
+
+    - name: Install package
+      env:
+        SLUGIFY_USES_TEXT_UNIDECODE: yes
+      working-directory: ${{ inputs.working_directory }}
+      run: pip install "apache-airflow==2.5.3" --constraint "https://raw.githubusercontent.com/apache/airflow/constraints-2.5.3/constraints-${{ inputs.python-version }}.txt"
+      shell: bash
