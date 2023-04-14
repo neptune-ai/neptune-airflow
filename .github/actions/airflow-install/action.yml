@@ -23,5 +23,5 @@ runs:
       env:
         SLUGIFY_USES_TEXT_UNIDECODE: yes
       working-directory: ${{ inputs.working_directory }}
-      run: pip install "apache-airflow=2.5.3" --constraint "https://raw.githubusercontent.com/apache/airflow/constraints-2.5.3/constraints-${{ inputs.python-version }}.txt"
+      run: pip install "apache-airflow==2.5.3" --constraint "https://raw.githubusercontent.com/apache/airflow/constraints-2.5.3/constraints-${{ inputs.python-version }}.txt"
       shell: bash
