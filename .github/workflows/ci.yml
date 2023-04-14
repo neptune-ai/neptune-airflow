@@ -36,7 +36,8 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
-      - uses: ./.github/actions/airflow-install
+      - name: Install airflow
+        uses: ./.github/actions/airflow-install
         with:
           python-version: ${{ matrix.python-version }}
 
