@@ -21,18 +21,7 @@ __all__ = [
 ]
 
 # TODO: use `warnings.warn` for user caused problems: https://stackoverflow.com/a/14762106/1565454
-import warnings
 
-try:
-    # neptune-client=0.9.0+ package structure
-    import neptune.new as neptune
-    from neptune.new.internal.utils import verify_type
-    from neptune.new.internal.utils.compatibility import expect_not_an_experiment
-except ImportError:
-    # neptune-client>=1.0.0 package structure
-    import neptune
-    from neptune.internal.utils import verify_type
-    from neptune.internal.utils.compatibility import expect_not_an_experiment
 
 from neptune_airflow.impl.version import __version__
 
