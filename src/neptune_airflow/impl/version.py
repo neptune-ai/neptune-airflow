@@ -22,6 +22,13 @@ if not (find_spec("neptune") or find_spec("neptune-client")):
             Need help? -> https://docs.neptune.ai/setup/installation/"""
     raise PackageNotFoundError(msg)
 
+if not find_spec("airflow"):
+    msg = """
+            Airflow was not found.
+            Install the airflow package first.
+            Need help? -> https://airflow.apache.org/docs/apache-airflow/stable/installation/index.html"""
+    raise PackageNotFoundError(msg)
+
 try:
     __version__ = version("neptune-airflow")
 except PackageNotFoundError:
