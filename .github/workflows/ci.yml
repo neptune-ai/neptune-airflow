@@ -16,7 +16,7 @@ jobs:
 
       - name: Install airflow
         run: |
-          pip install "apache-airflow==2.5.3" --constraint "https://raw.githubusercontent.com/apache/airflow/constraints-2.5.3/constraints-3.9.txt"
+          pip install apache-airflow --constraint "https://raw.githubusercontent.com/apache/airflow/constraints-main/constraints-3.9.txt"
 
       - name: Pre-commit
         run: |
@@ -37,7 +37,7 @@ jobs:
 
       - name: Install airflow
         run: |
-          pip install "apache-airflow==2.5.3" --constraint "https://raw.githubusercontent.com/apache/airflow/constraints-2.5.3/constraints-${{ matrix.python-version }}.txt"
+          pip install apache-airflow --constraint "https://raw.githubusercontent.com/apache/airflow/constraints-main/constraints-${{ matrix.python-version }}.txt"
 
       - name: Test
         env:
