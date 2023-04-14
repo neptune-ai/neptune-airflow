@@ -14,7 +14,8 @@ jobs:
         run: |
           pip install -e .[dev]
 
-      - uses: ./.github/actions/airflow-install
+      - name: Install airflow
+        uses: ./.github/actions/airflow-install
         with:
           python-version: 3.9
 
