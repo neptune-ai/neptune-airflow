@@ -16,15 +16,53 @@
 
 __all__ = [
     "__version__",
-    # TODO: add importable public names here, `neptune-client` uses `import *`
-    # https://docs.python.org/3/tutorial/modules.html#importing-from-a-package
+    "get_run_from_context",
 ]
 
-# TODO: use `warnings.warn` for user caused problems: https://stackoverflow.com/a/14762106/1565454
+from typing import (
+    Any,
+    Dict,
+    Optional,
+)
 
+from airflow.models import Variable
+from neptune import (
+    Run,
+    init_run,
+)
 
 from neptune_airflow.impl.version import __version__
 
 INTEGRATION_VERSION_KEY = "source_code/integrations/airflow"
 
-# TODO: Implementation of neptune-airflow here
+
+def get_run_from_context(
+    *,
+    api_token: Optional[str],
+    project: Optional[str],
+    log_context: bool = False,
+    context: Dict[str, Any],
+) -> Run:
+
+    # Check airflow variables if api_token or project not provided
+    if not api_token:
+        api_token = Variable.get("NEPTUNE_API_TOKEN", None)
+
+    if not project:
+        project = Variable.get("NEPTUNE_PROJECT", None)
+
+    dag_run_id = context["dag_run"].run_id
+    run = init_run(
+        api_token=api_token,
+        project=project,
+        with_id=dag_run_id,
+    )
+
+    if not run.exists(INTEGRATION_VERSION_KEY):
+        run[INTEGRATION_VERSION_KEY] = __version__
+
+    if log_context:
+        # log context using stringify_unsupported
+        ...
+
+    return run

@@ -16,11 +16,11 @@
 
 __all__ = [
     "__version__",
-    # TODO: add objects that are to be exposed by the package e.g. NeptuneCallback
+    "get_run_from_context",
 ]
 
 
 from neptune_airflow.impl import (
     __version__,
-    # TODO: add objects that are to be imported from the impl package e.g. NeptuneCallback
+    get_run_from_context,
 )
