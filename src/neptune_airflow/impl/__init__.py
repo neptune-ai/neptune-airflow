@@ -19,6 +19,7 @@ __all__ = [
     "get_run_from_context",
 ]
 
+from hashlib import md5
 from typing import (
     Any,
     Dict,
@@ -45,8 +46,8 @@ INTEGRATION_VERSION_KEY = "source_code/integrations/airflow"
 
 def get_run_from_context(
     *,
-    api_token: Optional[str],
-    project: Optional[str],
+    api_token: Optional[str] = None,
+    project: Optional[str] = None,
     log_context: bool = False,
     context: Dict[str, Any],
 ) -> Run:
@@ -62,7 +63,7 @@ def get_run_from_context(
     run = init_run(
         api_token=api_token,
         project=project,
-        with_id=dag_run_id,
+        custom_run_id=md5(dag_run_id.encode()).hexdigest(),
     )
 
     if not run.exists(INTEGRATION_VERSION_KEY):
