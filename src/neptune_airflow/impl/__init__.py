@@ -33,11 +33,13 @@ try:
         Run,
         init_run,
     )
+    from neptune.utils import stringify_unsupported
 except ImportError:
     from neptune.new import (
         init_run,
         Run,
     )
+    from neptune.new.utils import stringify_unsupported
 
 from neptune_airflow.impl.version import __version__
 
@@ -70,7 +72,11 @@ def get_run_from_context(
         run[INTEGRATION_VERSION_KEY] = __version__
 
     if log_context:
-        # log context using stringify_unsupported
-        ...
+        conf = context.pop("conf", None)
+        if conf:
+            run["context/conf"] = stringify_unsupported(conf.__dict__)
+        dag = context.pop("dag", None)
+        if dag:
+            run["context/dag"] = stringify_unsupported(dag.__dict__)
 
     return run
