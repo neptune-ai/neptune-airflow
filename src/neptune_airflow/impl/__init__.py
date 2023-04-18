@@ -55,11 +55,10 @@ def get_run_from_context(
 ) -> Run:
 
     # Check airflow variables if api_token or project not provided
-    if not api_token:
-        api_token = Variable.get("NEPTUNE_API_TOKEN", None)
 
-    if not project:
-        project = Variable.get("NEPTUNE_PROJECT", None)
+    api_token = api_token or Variable.get("NEPTUNE_API_TOKEN", None)
+
+    project = project or Variable.get("NEPTUNE_PROJECT", None)
 
     dag_run_id = context["dag_run"].run_id
     run = init_run(
