@@ -3,17 +3,13 @@ from datetime import (
     timedelta,
 )
 
-# to avoid collection failures while running pytest in CI
-import pytest
+import tensorflow as tf
 from airflow import DAG
 from airflow.decorators import task
 from neptune.integrations.tensorflow_keras import NeptuneCallback
 from neptune.types import File
 
 from neptune_airflow import get_run_from_context
-
-tensorflow = pytest.importorskip("tensorflow")
-tf = tensorflow
 
 
 def train_model(**context):
