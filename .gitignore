@@ -124,3 +124,5 @@ venv.bak/
 .vscode
 
 stream.bin
+
+*.h5
