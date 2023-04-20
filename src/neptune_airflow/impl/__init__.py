@@ -17,6 +17,7 @@
 __all__ = [
     "__version__",
     "get_run_from_context",
+    "get_task_handler_from_context",
 ]
 
 from hashlib import md5
@@ -33,12 +34,14 @@ try:
         Run,
         init_run,
     )
+    from neptune.handler import Handler
     from neptune.utils import stringify_unsupported
 except ImportError:
     from neptune.new import (
         init_run,
         Run,
     )
+    from neptune.new.handler import Handler
     from neptune.new.utils import stringify_unsupported
 
 from neptune_airflow.impl.version import __version__
@@ -79,3 +82,16 @@ def get_run_from_context(
             run["context/dag"] = stringify_unsupported(dag.__dict__)
 
     return run
+
+
+def get_task_handler_from_context(
+    *,
+    api_token: Optional[str] = None,
+    project: Optional[str] = None,
+    log_context: bool = False,
+    context: Dict[str, Any],
+) -> Handler:
+
+    base_namespace = context["ti"].task_id
+    run = get_run_from_context(api_token=api_token, project=project, log_context=log_context, context=context)
+    return run[base_namespace]

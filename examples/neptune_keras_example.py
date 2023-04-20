@@ -9,11 +9,12 @@ from airflow.decorators import task
 from neptune.integrations.tensorflow_keras import NeptuneCallback
 from neptune.types import File
 
-from neptune_airflow import get_run_from_context
+from neptune_airflow import get_task_handler_from_context
 
 
 def train_model(**context):
-    run = get_run_from_context(context=context)
+    handler = get_task_handler_from_context(context=context)
+    run = handler.get_root_object()
     mnist = tf.keras.datasets.mnist
     (x_train, y_train), (x_test, y_test) = mnist.load_data()
     x_train, x_test = x_train / 255.0, x_test / 255.0
@@ -35,7 +36,7 @@ def train_model(**context):
     model.compile(optimizer=optimizer, loss="sparse_categorical_crossentropy", metrics=["accuracy"])
 
     # (Neptune) log metrics during training
-    neptune_cbk = NeptuneCallback(run=run)
+    neptune_cbk = NeptuneCallback(run=handler)
     model.fit(x_train, y_train, epochs=5, batch_size=64, callbacks=[neptune_cbk])
     model.save("my_model.h5")
     run["model_checkpoint/checkpoint"].upload_files("my_model.h5")
@@ -44,7 +45,8 @@ def train_model(**context):
 
 
 def evaluate_model(**context):
-    run = get_run_from_context(context=context)
+    handler = get_task_handler_from_context(context=context)
+    run = handler.get_root_object()
 
     # if the tasks don't share the same file system
     # run["model_checkpoint/checkpoint/my_model.h5"].download()
@@ -57,7 +59,7 @@ def evaluate_model(**context):
         prediction = model.predict(image[None], verbose=0)
         predicted = prediction.argmax()
         desc = f"label : {label} | predicted : {predicted}"
-        run["visualization/test_prediction"].append(File.as_image(image), description=desc)
+        handler["visualization/test_prediction"].append(File.as_image(image), description=desc)
     run.sync()
     run.stop()
 

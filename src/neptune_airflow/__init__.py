@@ -17,10 +17,12 @@
 __all__ = [
     "__version__",
     "get_run_from_context",
+    "get_task_handler_from_context",
 ]
 
 
 from neptune_airflow.impl import (
     __version__,
     get_run_from_context,
+    get_task_handler_from_context,
 )
