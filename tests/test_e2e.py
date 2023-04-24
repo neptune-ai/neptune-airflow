@@ -3,7 +3,6 @@ from datetime import (
     datetime,
     timedelta,
 )
-from hashlib import md5
 
 import neptune
 import pytest
@@ -30,7 +29,7 @@ class TestE2E:
             def task1(**context):
                 neptune_run = get_run_from_context(context=context, log_context=log_context)
                 neptune_run["some_metric"] = 5
-                os.environ["NEPTUNE_CUSTOM_RUN_ID"] = md5(context["dag_run"].run_id.encode()).hexdigest()
+                os.environ["NEPTUNE_CUSTOM_RUN_ID"] = neptune_run["sys/custom_run_id"].fetch()
                 neptune_run.sync()
                 neptune_run.stop()
 
@@ -61,7 +60,7 @@ class TestE2E:
             def task1(**context):
                 neptune_handler = get_task_handler_from_context(context=context, log_context=log_context)
                 neptune_handler["some_metric"] = 5
-                os.environ["NEPTUNE_CUSTOM_RUN_ID"] = md5(context["dag_run"].run_id.encode()).hexdigest()
+                os.environ["NEPTUNE_CUSTOM_RUN_ID"] = neptune_handler.get_root_object()["sys/custom_run_id"].fetch()
                 neptune_handler.get_root_object().sync()
                 neptune_handler.get_root_object().stop()
 
