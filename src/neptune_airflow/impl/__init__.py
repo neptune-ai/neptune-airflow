@@ -72,7 +72,7 @@ def get_run_from_context(
     if not run.exists(INTEGRATION_VERSION_KEY):
         run[INTEGRATION_VERSION_KEY] = __version__
 
-    if log_context:
+    if log_context and not run.exists("context"):
         for field in {"conf", "dag", "dag_run"}:
             to_log = context.pop(field, None)
             if to_log:
