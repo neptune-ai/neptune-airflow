@@ -78,6 +78,9 @@ def get_run_from_context(
             if to_log:
                 run[f"context/{field}"] = stringify_unsupported(to_log.__dict__)
 
+        for key in context:
+            run[f"context/{key}"] = str(context[key])
+
     return run
 
 
