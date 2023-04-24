@@ -56,7 +56,6 @@ def get_run_from_context(
     log_context: bool = False,
     context: Dict[str, Any],
 ) -> Run:
-
     # Check airflow variables if api_token or project not provided
 
     api_token = api_token or Variable.get("NEPTUNE_API_TOKEN", None)
@@ -74,12 +73,10 @@ def get_run_from_context(
         run[INTEGRATION_VERSION_KEY] = __version__
 
     if log_context:
-        conf = context.pop("conf", None)
-        if conf:
-            run["context/conf"] = stringify_unsupported(conf.__dict__)
-        dag = context.pop("dag", None)
-        if dag:
-            run["context/dag"] = stringify_unsupported(dag.__dict__)
+        for field in {"conf", "dag", "dag_run"}:
+            to_log = context.pop(field, None)
+            if to_log:
+                run[f"context/{field}"] = stringify_unsupported(to_log.__dict__)
 
     return run
 
@@ -91,7 +88,6 @@ def get_task_handler_from_context(
     log_context: bool = False,
     context: Dict[str, Any],
 ) -> Handler:
-
     base_namespace = context["ti"].task_id
     run = get_run_from_context(api_token=api_token, project=project, log_context=log_context, context=context)
     return run[base_namespace]
