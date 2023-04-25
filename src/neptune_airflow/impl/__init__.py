@@ -25,7 +25,6 @@ from typing import (
     Any,
     Dict,
     Optional,
-    Union,
 )
 
 from airflow.models import Variable
@@ -52,7 +51,7 @@ INTEGRATION_VERSION_KEY = "source_code/integrations/airflow"
 INDIVIDUAL_TASK_KEYS = {"task", "task_instance", "task_instance_key_str", "ti"}
 
 
-def _log_context(context: Dict[str, Any], neptune_run: Union[Run, Handler]) -> None:
+def _log_context(context: Dict[str, Any], neptune_run: Run) -> None:
     for field in {"conf", "dag", "dag_run"}:
         to_log = context.pop(field, None)
         if to_log:
