@@ -49,15 +49,17 @@ from neptune_airflow.impl.version import __version__
 
 INTEGRATION_VERSION_KEY = "source_code/integrations/airflow"
 
+INDIVIDUAL_TASK_KEYS = {"task", "task_instance", "task_instance_key_str", "ti"}
+
 
 def _log_context(context: Dict[str, Any], neptune_run: Union[Run, Handler]) -> None:
     for field in {"conf", "dag", "dag_run"}:
         to_log = context.pop(field, None)
         if to_log:
             neptune_run[f"context/{field}"] = stringify_unsupported(to_log.__dict__)
-
     for key in context:
-        neptune_run[f"context/{key}"] = str(context[key])
+        if key not in INDIVIDUAL_TASK_KEYS:
+            neptune_run[f"context/{key}"] = str(context[key])
 
 
 def get_run_from_context(
@@ -149,4 +151,10 @@ def get_task_handler_from_context(
     """
     base_namespace = context["ti"].task_id
     run = get_run_from_context(api_token=api_token, project=project, log_context=log_context, context=context)
+
+    if log_context:
+        for key in INDIVIDUAL_TASK_KEYS:
+            if key in context:
+                run[base_namespace][f"context/{key}"] = str(context[key])
+
     return run[base_namespace]
