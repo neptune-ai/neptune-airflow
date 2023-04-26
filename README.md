@@ -1,4 +1,3 @@
-# Neptune - airflow integration
+# Neptune + Airflow integration
 
-TODO: Update docs link
-See [the official docs](https://docs.neptune.ai/integrations-and-supported-tools/model-training/).
+For instructions, see [the official docs](https://docs.neptune.ai/integrations/airflow).
