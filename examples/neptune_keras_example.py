@@ -9,11 +9,13 @@ from airflow.decorators import task
 from neptune.integrations.tensorflow_keras import NeptuneCallback
 from neptune.types import File
 
-from neptune_airflow import get_task_handler_from_context
+from neptune_airflow import NeptuneLogger
+
+logger = NeptuneLogger()
 
 
 def train_model(**context):
-    handler = get_task_handler_from_context(context=context)
+    handler = logger.get_task_handler_from_context(context=context)
     run = handler.get_root_object()
     mnist = tf.keras.datasets.mnist
     (x_train, y_train), (x_test, y_test) = mnist.load_data()
@@ -45,7 +47,7 @@ def train_model(**context):
 
 
 def evaluate_model(**context):
-    handler = get_task_handler_from_context(context=context)
+    handler = logger.get_task_handler_from_context(context=context)
     run = handler.get_root_object()
 
     # if the tasks don't share the same file system
