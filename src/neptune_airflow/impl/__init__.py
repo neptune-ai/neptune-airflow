@@ -51,6 +51,17 @@ INTEGRATION_VERSION_KEY = "source_code/integrations/airflow"
 INDIVIDUAL_TASK_KEYS = {"task", "task_instance", "task_instance_key_str", "ti"}
 
 
+def singleton(func):
+    instances = {}
+
+    def getinstance(*args, **kwargs):
+        if func not in instances:
+            instances[func] = func(*args, **kwargs)
+        return instances[func]
+
+    return getinstance
+
+
 def _log_context(context: Dict[str, Any], neptune_run: Run) -> None:
     for field in {"conf", "dag", "dag_run"}:
         to_log = context.pop(field, None)
@@ -61,6 +72,7 @@ def _log_context(context: Dict[str, Any], neptune_run: Run) -> None:
             neptune_run[f"context/{key}"] = str(context[key])
 
 
+@singleton
 def get_run_from_context(
     *,
     api_token: Optional[str] = None,
@@ -115,6 +127,7 @@ def get_run_from_context(
     return run
 
 
+@singleton
 def get_task_handler_from_context(
     *,
     api_token: Optional[str] = None,
