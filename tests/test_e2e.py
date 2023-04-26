@@ -9,15 +9,10 @@ import pytest
 from airflow import DAG
 from airflow.decorators import task
 
-from neptune_airflow import (
-    get_run_from_context,
-    get_task_handler_from_context,
-)
-
 
 class TestE2E:
     @pytest.mark.parametrize("log_context", [True, False])
-    def test_metrics_and_context_logged_run(self, log_context):
+    def test_metrics_and_context_logged_run(self, log_context, logger):
         with DAG(
             dag_id="test_dag",
             description="test_description",
@@ -27,11 +22,10 @@ class TestE2E:
 
             @task(task_id="hello-run")
             def task1(**context):
-                neptune_run = get_run_from_context(context=context, log_context=log_context)
+                neptune_run = logger.get_run_from_context(context=context, log_context=log_context)
                 neptune_run["some_metric"] = 5
                 os.environ["NEPTUNE_CUSTOM_RUN_ID"] = neptune_run["sys/custom_run_id"].fetch()
                 neptune_run.sync()
-                neptune_run.stop()
 
             task1()
 
@@ -48,7 +42,7 @@ class TestE2E:
             assert run["context/dag/_description"].fetch() == "test_description"
 
     @pytest.mark.parametrize("log_context", [True, False])
-    def test_metrics_and_context_logged_handler(self, log_context):
+    def test_metrics_and_context_logged_handler(self, log_context, logger):
         with DAG(
             dag_id="test_dag",
             description="test_description",
@@ -58,11 +52,10 @@ class TestE2E:
 
             @task(task_id="hello-handler")
             def task1(**context):
-                neptune_handler = get_task_handler_from_context(context=context, log_context=log_context)
+                neptune_handler = logger.get_task_handler_from_context(context=context, log_context=log_context)
                 neptune_handler["some_metric"] = 5
                 os.environ["NEPTUNE_CUSTOM_RUN_ID"] = neptune_handler.get_root_object()["sys/custom_run_id"].fetch()
                 neptune_handler.get_root_object().sync()
-                neptune_handler.get_root_object().stop()
 
             task1()
 
