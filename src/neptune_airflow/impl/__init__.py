@@ -68,26 +68,27 @@ def get_run_from_context(
     log_context: bool = False,
     context: Dict[str, Any],
 ) -> Run:
-    """Creates a Neptune.ai run based on the relevant DAG run.
+    """Creates a Neptune run based on the relevant DAG run.
 
     This ensures that different tasks will still log to the same run if this function is used.
-    Additionally, context of the task may be logged automatically if `log_context` param is set to True.
+    You can log the context of the task automatically by setting the `log_context` parameter to `True`.
 
     Args:
-        api_token (`str`, optional): API token for Neptune.ai
-        project (`str`, optional): Name of the Neptune.ai project you want to log to.
-        log_context (`bool`): If True, the task context will also be logged to the run. Defaults to False.
-        context (`dict`): The task context obtained from airflow.
-            Note: There are 3 ways of passing api_token and project:
-             - explicitly, passing them as args to the function
-             - by environmental variables (https://docs.neptune.ai/logging/new_run)
-             - by airflow variables (https://airflow.apache.org/docs/apache-airflow/stable/howto/variable.html)
+        api_token: Neptune API token. If `None`, the value of the `NEPTUNE_API_TOKEN` environment variable is used.
+            Note: To keep your token secure, avoid placing it in the source code. Instead,
+            save it as an environment variable. You can also use Airflow variables:
+            https://airflow.apache.org/docs/apache-airflow/stable/howto/variable.html
+        project: Name of the Neptune project you want to log to, in the form "workspace-name/project-name".
+            If `None`, the value of the `NEPTUNE_PROJECT` environment variable is used.
+            You can also use Airflow variables:
+            https://airflow.apache.org/docs/apache-airflow/stable/howto/variable.html
+        log_context: If True, the task context will also be logged to the run.
+        context: The task context obtained from Airflow.
 
     Returns:
         `Run` with CUSTOM_RUN_ID based on DAG run ID.
 
-    See the relevant examples in examples/ directory.
-
+    For examples, see the examples/ directory.
 
     For more, see the docs:
         Tutorial: https://docs.neptune.ai/integrations/airflow/
@@ -122,27 +123,28 @@ def get_task_handler_from_context(
     log_context: bool = False,
     context: Dict[str, Any],
 ) -> Handler:
-    """Creates a Neptune.ai handler based on the relevant DAG run and task ID.
+    """Creates a Neptune handler based on the relevant DAG run and task ID.
 
     This ensures that different tasks will still log to the same run if this function is used.
-    Each task will however create its own namespace within the run to log to.
-    Additionally, context of the task may be logged automatically if `log_context` param is set to True.
+    The metadata from each task is logged under separate namespaces within the run.
+    You can log the context of the task automatically by setting the `log_context` parameter to `True`.
 
     Args:
-        api_token (`str`, optional): API token for Neptune.ai
-        project (`str`, optional): Name of the Neptune.ai project you want to log to.
-        log_context (`bool`): If True, the task context will also be logged to the run. Defaults to False.
-        context (`dict`): The task context obtained from airflow.
-            Note: There are 3 ways of passing api_token and project:
-             - explicitly, passing them as args to the function
-             - by environmental variables (https://docs.neptune.ai/logging/new_run)
-             - by airflow variables (https://airflow.apache.org/docs/apache-airflow/stable/howto/variable.html)
+        api_token: Neptune API token. If `None`, the value of the `NEPTUNE_API_TOKEN` environment variable is used.
+            Note: To keep your token secure, avoid placing it in the source code. Instead,
+            save it as an environment variable. You can also use Airflow variables:
+            https://airflow.apache.org/docs/apache-airflow/stable/howto/variable.html
+        project: Name of the Neptune project you want to log to, in the form "workspace-name/project-name".
+            If `None`, the value of the `NEPTUNE_PROJECT` environment variable is used.
+            You can also use Airflow variables:
+            https://airflow.apache.org/docs/apache-airflow/stable/howto/variable.html
+        log_context: If `True`, the task context will also be logged to the run.
+        context: The task context obtained from Airflow.
 
     Returns:
         `Handler` with CUSTOM_RUN_ID based on DAG run ID and namespace based on task ID.
 
-    See the relevant examples in examples/ directory.
-
+    For examples, see the examples/ directory.
 
     For more, see the docs:
         Tutorial: https://docs.neptune.ai/integrations/airflow/
