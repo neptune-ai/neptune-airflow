@@ -11,10 +11,8 @@ from neptune.types import File
 
 from neptune_airflow import NeptuneLogger
 
-logger = NeptuneLogger()
 
-
-def train_model(**context):
+def train_model(logger: NeptuneLogger, **context):
     handler = logger.get_task_handler_from_context(context=context)
     run = handler.get_root_object()
     mnist = tf.keras.datasets.mnist
@@ -46,7 +44,7 @@ def train_model(**context):
     run.stop()
 
 
-def evaluate_model(**context):
+def evaluate_model(logger: NeptuneLogger, **context):
     handler = logger.get_task_handler_from_context(context=context)
     run = handler.get_root_object()
 
@@ -76,10 +74,12 @@ with DAG(
 
     @task(task_id="train-model")
     def task1(**context):
-        return train_model(**context)
+        logger = NeptuneLogger()
+        return train_model(logger, **context)
 
     @task(task_id="evaluate-model")
     def task2(**context):
-        return evaluate_model(**context)
+        logger = NeptuneLogger()
+        return evaluate_model(logger, **context)
 
     task1() >> task2()
