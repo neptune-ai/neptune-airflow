@@ -67,6 +67,7 @@ def evaluate_model(logger: NeptuneLogger, **context):
 with DAG(
     dag_id="test_dag",
     description="test_description",
+    tags=["neptune", "tensorflow"],
     schedule="@daily",
     start_date=datetime.today() - timedelta(days=1),
     catchup=False,
