@@ -14,7 +14,7 @@
 # limitations under the License.
 #
 
-__all__ = ["__version__", "get_run_from_context", "get_task_handler_from_context", "NeptuneLogger"]
+__all__ = ["__version__", "NeptuneLogger"]
 
 from copy import copy
 from hashlib import md5
@@ -22,6 +22,7 @@ from typing import (
     Any,
     Dict,
     Optional,
+    Union,
 )
 
 from airflow.models import Variable
@@ -45,8 +46,6 @@ except ImportError:
 from neptune_airflow.impl.version import __version__
 
 INTEGRATION_VERSION_KEY = "source_code/integrations/airflow"
-
-INDIVIDUAL_TASK_KEYS = {"task", "task_instance", "task_instance_key_str", "ti"}
 
 
 def singleton(class_):
@@ -110,21 +109,18 @@ class NeptuneLogger:
     def get_task_handler_from_context(self, context: Dict[str, Any], log_context: bool = False) -> Handler:
         if not self.base_handler or self.dag_run_id != context["dag_run"].run_id:
             base_namespace = context["ti"].task_id
-            self.base_handler = self.get_run_from_context(context, log_context)[base_namespace]
+            self.base_handler = self.get_run_from_context(context, False)[base_namespace]
             if log_context:
-                for key in INDIVIDUAL_TASK_KEYS:
-                    if key in context:
-                        self.base_handler[f"context/{key}"] = str(context[key])
+                _log_context(context, self.base_handler)
 
         return self.base_handler
 
 
-def _log_context(context: Dict[str, Any], neptune_run: Run) -> None:
+def _log_context(context: Dict[str, Any], neptune_run: Union[Run, Handler]) -> None:
     _context = copy(context)
     for field in {"conf", "dag", "dag_run"}:
         to_log = _context.pop(field, None)
         if to_log:
             neptune_run[f"context/{field}"] = stringify_unsupported(to_log.__dict__)
     for key in _context:
-        if key not in INDIVIDUAL_TASK_KEYS:
-            neptune_run[f"context/{key}"] = str(_context[key])
+        neptune_run[f"context/{key}"] = str(_context[key])
