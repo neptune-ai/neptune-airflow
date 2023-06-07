@@ -66,12 +66,11 @@ class TestE2E:
         assert run.exists("source_code/integrations/airflow")
 
         if log_context:
-            assert run.exists("context")
-            assert run.exists("context/dag")
-            assert run["context/dag/_dag_id"].fetch() == "test_dag"
-            assert run["context/dag/_description"].fetch() == "test_description"
+            assert not run.exists("context")
+
+            assert run.exists("hello-handler/context/dag")
+            assert run["hello-handler/context/dag/_dag_id"].fetch() == "test_dag"
+            assert run["hello-handler/context/dag/_description"].fetch() == "test_description"
 
             assert run.exists("hello-handler/context/ti")
             assert run["hello-handler/context/task_instance_key_str"].fetch().startswith("test_dag__hello-handler")
-            assert not run.exists("context/ti")
-            assert not run.exists("context/task_instance_key_str")
