@@ -16,6 +16,7 @@
 
 __all__ = ["__version__", "NeptuneLogger"]
 
+import warnings
 from copy import copy
 from hashlib import md5
 from typing import (
@@ -68,10 +69,15 @@ class NeptuneLogger:
         *,
         api_token: Optional[str] = None,
         project: Optional[str] = None,
+        **neptune_kwargs,
     ) -> None:
 
         self.api_token = api_token or Variable.get("NEPTUNE_API_TOKEN", None)
         self.project = project or Variable.get("NEPTUNE_PROJECT", None)
+        self.neptune_kwargs = neptune_kwargs
+        if "custom_run_id" in self.neptune_kwargs:
+            ci = self.neptune_kwargs.pop("custom_run_id")
+            warnings.warn(f"Given custom_run_id ('{ci}') will be overwritten")
 
         self.run = None
         self.base_handler = None
@@ -87,6 +93,7 @@ class NeptuneLogger:
             api_token=self.api_token,
             project=self.project,
             custom_run_id=md5(dag_run_id.encode()).hexdigest(),  # CUSTOM_RUN_ID max length = 32
+            **self.neptune_kwargs,
         )
         if not run.exists(INTEGRATION_VERSION_KEY):
             run[INTEGRATION_VERSION_KEY] = __version__
