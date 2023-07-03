@@ -33,7 +33,7 @@ from neptune_airflow import NeptuneLogger
 
 
 def train_model(logger: NeptuneLogger, **context):
-    handler = logger.get_task_handler_from_context(context=context)
+    handler = logger.get_task_handler_from_context(context=context, log_context=True)
     run = handler.get_root_object()
     x_train = tf.random.uniform(shape=[2, 28, 28])
     y_train = tf.constant([1, 1], shape=(2, 1), dtype=tf.int8)
@@ -64,7 +64,7 @@ def train_model(logger: NeptuneLogger, **context):
 
 
 def evaluate_model(logger: NeptuneLogger, **context):
-    handler = logger.get_task_handler_from_context(context=context)
+    handler = logger.get_task_handler_from_context(context=context, log_context=True)
     run = handler.get_root_object()
 
     # if the tasks don't share the same file system

@@ -13,7 +13,7 @@ from neptune_airflow import NeptuneLogger
 
 
 def train_model(logger: NeptuneLogger, **context):
-    handler = logger.get_task_handler_from_context(context=context)
+    handler = logger.get_task_handler_from_context(context=context, log_context=True)
     run = handler.get_root_object()
     mnist = tf.keras.datasets.mnist
     (x_train, y_train), (x_test, y_test) = mnist.load_data()
@@ -45,7 +45,7 @@ def train_model(logger: NeptuneLogger, **context):
 
 
 def evaluate_model(logger: NeptuneLogger, **context):
-    handler = logger.get_task_handler_from_context(context=context)
+    handler = logger.get_task_handler_from_context(context=context, log_context=True)
     run = handler.get_root_object()
 
     # if the tasks don't share the same file system
