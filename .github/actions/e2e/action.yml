@@ -20,7 +20,12 @@ runs:
       run: pip install -e .[dev]
       shell: bash
 
+    - name: Init db
+      working-directory: ${{ inputs.working_directory }}
+      run: airflow db init
+      shell: bash
+
     - name: Run tests
       working-directory: ${{ inputs.working_directory }}
-      run: pytest -v --doctest-modules
+      run: pytest -v
       shell: bash
