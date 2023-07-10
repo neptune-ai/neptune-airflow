@@ -85,6 +85,7 @@ class NeptuneLogger:
 
     def __del__(self) -> None:
         if self.run:
+            self.run.sync()
             self.run.stop()
 
     def _initialize_run(self, context: Dict[str, Any], log_context: bool = False) -> Run:
