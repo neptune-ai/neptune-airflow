@@ -129,6 +129,17 @@ def _log_context(context: Dict[str, Any], neptune_run: Union[Run, Handler]) -> N
     for field in {"conf", "dag", "dag_run"}:
         to_log = _context.pop(field, None)
         if to_log:
+            if field == "conf":
+                inversed_deprecated_options_dict = to_log.__dict__.pop("inversed_deprecated_options")
+                for key, value in inversed_deprecated_options_dict.items():
+                    if isinstance(key, tuple):
+                        key = "_".join(key)
+                    if isinstance(value, tuple):
+                        value = "_".join(value)
+
+                    neptune_run[f"context/{field}/inversed_deprecated_options/{key}"] = stringify_unsupported(value)
+
             neptune_run[f"context/{field}"] = stringify_unsupported(to_log.__dict__)
+
     for key in _context:
         neptune_run[f"context/{key}"] = str(_context[key])

@@ -38,6 +38,8 @@ class TestE2E:
         if log_context:
             assert run.exists("context")
             assert run.exists("context/dag")
+            assert run.exists("context/conf")
+            assert run.exists("context/conf/inversed_deprecated_options/")
             assert run["context/dag/_dag_id"].fetch() == "test_dag"
             assert run["context/dag/_description"].fetch() == "test_description"
 
