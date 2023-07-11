@@ -112,7 +112,6 @@ class NeptuneLogger:
         yield self.run
 
         self.run.sync()
-        self.run.stop()
 
     @contextmanager
     def get_task_handler_from_context(self, context: Dict[str, Any], log_context: bool = False) -> Handler:
