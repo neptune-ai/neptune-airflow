@@ -121,6 +121,7 @@ class NeptuneLogger:
         yield self.base_handler
 
         self.base_handler.get_root_object().sync()
+        self.base_handler.get_root_object().stop()
         self.base_handler = None
 
 
