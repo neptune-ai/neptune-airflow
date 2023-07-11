@@ -100,6 +100,7 @@ class NeptuneLogger:
 
         return run
 
+    @contextmanager
     def get_run_from_context(self, context: Dict[str, Any], log_context: bool = False) -> Run:
         if self.run and self.run._state == ContainerState.STOPPED:
             self.run = None
@@ -108,21 +109,23 @@ class NeptuneLogger:
             self.dag_run_id = context["dag_run"].run_id
             self.run = self._initialize_run(context, log_context)
 
-        return self.run
+        yield self.run
+
+        self.run.sync()
+        self.run.stop()
 
     @contextmanager
     def get_task_handler_from_context(self, context: Dict[str, Any], log_context: bool = False) -> Handler:
         if not self.base_handler or self.dag_run_id != context["dag_run"].run_id:
             base_namespace = context["ti"].task_id
-            self.base_handler = self.get_run_from_context(context, False)[base_namespace]
-            if log_context:
-                _log_context(context, self.base_handler)
+            with self.get_run_from_context(context, False) as run:
+                self.base_handler = run[base_namespace]
+                if log_context:
+                    _log_context(context, self.base_handler)
 
-        yield self.base_handler
+                yield self.base_handler
 
-        self.base_handler.get_root_object().sync()
-        self.base_handler.get_root_object().stop()
-        self.base_handler = None
+                self.base_handler = None
 
 
 def _log_context(context: Dict[str, Any], neptune_run: Union[Run, Handler]) -> None:
