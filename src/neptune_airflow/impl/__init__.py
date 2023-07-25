@@ -17,6 +17,7 @@
 __all__ = ["__version__", "NeptuneLogger"]
 
 import warnings
+from contextlib import contextmanager
 from copy import copy
 from hashlib import md5
 from typing import (
@@ -83,10 +84,6 @@ class NeptuneLogger:
         self.base_handler = None
         self.dag_run_id = None
 
-    def __del__(self) -> None:
-        if self.run:
-            self.run.stop()
-
     def _initialize_run(self, context: Dict[str, Any], log_context: bool = False) -> Run:
         dag_run_id = context["dag_run"].run_id
         run = init_run(
@@ -103,6 +100,7 @@ class NeptuneLogger:
 
         return run
 
+    @contextmanager
     def get_run_from_context(self, context: Dict[str, Any], log_context: bool = False) -> Run:
         if self.run and self.run._state == ContainerState.STOPPED:
             self.run = None
@@ -111,16 +109,22 @@ class NeptuneLogger:
             self.dag_run_id = context["dag_run"].run_id
             self.run = self._initialize_run(context, log_context)
 
-        return self.run
+        yield self.run
 
+        self.run.sync()
+
+    @contextmanager
     def get_task_handler_from_context(self, context: Dict[str, Any], log_context: bool = False) -> Handler:
         if not self.base_handler or self.dag_run_id != context["dag_run"].run_id:
             base_namespace = context["ti"].task_id
-            self.base_handler = self.get_run_from_context(context, False)[base_namespace]
-            if log_context:
-                _log_context(context, self.base_handler)
+            with self.get_run_from_context(context, False) as run:
+                self.base_handler = run[base_namespace]
+                if log_context:
+                    _log_context(context, self.base_handler)
 
-        return self.base_handler
+                yield self.base_handler
+
+                self.base_handler = None
 
 
 def _log_context(context: Dict[str, Any], neptune_run: Union[Run, Handler]) -> None:
@@ -128,6 +132,17 @@ def _log_context(context: Dict[str, Any], neptune_run: Union[Run, Handler]) -> N
     for field in {"conf", "dag", "dag_run"}:
         to_log = _context.pop(field, None)
         if to_log:
+            if field == "conf":
+                inversed_deprecated_options_dict = to_log.__dict__.pop("inversed_deprecated_options")
+                for key, value in inversed_deprecated_options_dict.items():
+                    if isinstance(key, tuple):
+                        key = "_".join(key)
+                    if isinstance(value, tuple):
+                        value = "_".join(value)
+
+                    neptune_run[f"context/{field}/inversed_deprecated_options/{key}"] = stringify_unsupported(value)
+
             neptune_run[f"context/{field}"] = stringify_unsupported(to_log.__dict__)
+
     for key in _context:
         neptune_run[f"context/{key}"] = str(_context[key])

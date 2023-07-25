@@ -22,10 +22,9 @@ class TestE2E:
 
             @task(task_id="hello-run")
             def task1(**context):
-                neptune_run = logger.get_run_from_context(context=context, log_context=log_context)
-                neptune_run["some_metric"] = 5
-                os.environ["NEPTUNE_CUSTOM_RUN_ID"] = neptune_run["sys/custom_run_id"].fetch()
-                neptune_run.sync()
+                with logger.get_run_from_context(context=context, log_context=log_context) as neptune_run:
+                    neptune_run["some_metric"] = 5
+                    os.environ["NEPTUNE_CUSTOM_RUN_ID"] = neptune_run["sys/custom_run_id"].fetch()
 
             task1()
 
@@ -38,6 +37,8 @@ class TestE2E:
         if log_context:
             assert run.exists("context")
             assert run.exists("context/dag")
+            assert run.exists("context/conf")
+            assert run.exists("context/conf/inversed_deprecated_options/")
             assert run["context/dag/_dag_id"].fetch() == "test_dag"
             assert run["context/dag/_description"].fetch() == "test_description"
 
@@ -52,10 +53,9 @@ class TestE2E:
 
             @task(task_id="hello-handler")
             def task1(**context):
-                neptune_handler = logger.get_task_handler_from_context(context=context, log_context=log_context)
-                neptune_handler["some_metric"] = 5
-                os.environ["NEPTUNE_CUSTOM_RUN_ID"] = neptune_handler.get_root_object()["sys/custom_run_id"].fetch()
-                neptune_handler.get_root_object().sync()
+                with logger.get_task_handler_from_context(context=context, log_context=log_context) as neptune_handler:
+                    neptune_handler["some_metric"] = 5
+                    os.environ["NEPTUNE_CUSTOM_RUN_ID"] = neptune_handler.get_root_object()["sys/custom_run_id"].fetch()
 
             task1()
 
