@@ -65,6 +65,34 @@ def singleton(class_):
 
 @singleton
 class NeptuneLogger:
+    """Creates a Neptune logger instance for tracking metadata during a DAG run.
+
+    Args:
+        api_token: User's Neptune API token.
+            If None, the value of the `NEPTUNE_API_TOKEN` Airflow Variable is used (recommended).
+            For help, see https://docs.neptune.ai/setup/setting_api_token/
+        project: Name of the Neptune project where the metadata should go.
+            If None, the value of the `NEPTUNE_PROJECT` Airflow Variable is used (recommended).
+            The full name of the project has the form `workspace-name/project-name`.
+            For help, see https://docs.neptune.ai/setup/setting_project_name/
+        **neptune_kwargs: Additional keyword arguments to be passed directly to the `init_run()` function, such as
+            `description` and `tags`. For more, see https://docs.neptune.ai/api/neptune/#init_run
+            Note: The `custom_run_id` parameter is reserved. It's automatically generated based on the DAG ID.
+
+    Example:
+        from neptune_airflow import NeptuneLogger
+
+        with DAG(
+            ...
+        ) as dag:
+            def task_1(**context):
+                neptune_logger = NeptuneLogger()
+
+    For more, see the docs:
+        Tutorial: https://docs.neptune.ai/integrations/airflow/
+        API reference: https://docs.neptune.ai/api/integrations/airflow/
+    """
+
     def __init__(
         self,
         *,
@@ -72,7 +100,6 @@ class NeptuneLogger:
         project: Optional[str] = None,
         **neptune_kwargs,
     ) -> None:
-
         self.api_token = api_token or Variable.get("NEPTUNE_API_TOKEN", None)
         self.project = project or Variable.get("NEPTUNE_PROJECT", None)
         self.neptune_kwargs = neptune_kwargs
