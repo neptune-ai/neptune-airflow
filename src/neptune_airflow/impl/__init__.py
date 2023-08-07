@@ -129,6 +129,28 @@ class NeptuneLogger:
 
     @contextmanager
     def get_run_from_context(self, context: Dict[str, Any], log_context: bool = False) -> Run:
+        """Gets the run from the current task so it can be used for logging metadata within the task.
+
+        Args:
+            context: Apache Airflow Context received by the task.
+            log_context: Whether to log the contents of the Context keyword arguments.
+
+        Returns:
+            Neptune Run object that can be used for logging.
+            For some common methods to log metadata, see https://docs.neptune.ai/logging/methods/
+
+        Example:
+            with DAG(
+                ...
+            ) as dag:
+                def task_1(**context):
+                    run = get_run_from_context(context)
+                    run["some_field"] = "some metadata"
+
+        For more, see the docs:
+            Tutorial: https://docs.neptune.ai/integrations/airflow/
+            API reference: https://docs.neptune.ai/api/integrations/airflow/
+        """
         if self.run and self.run._state == ContainerState.STOPPED:
             self.run = None
 
