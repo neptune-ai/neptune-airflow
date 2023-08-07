@@ -164,6 +164,33 @@ class NeptuneLogger:
 
     @contextmanager
     def get_task_handler_from_context(self, context: Dict[str, Any], log_context: bool = False) -> Handler:
+        """Gets a namespace handler named by the ID of the current task.
+
+        You can use the handler for logging metadata within the task, using the same logging methods as for runs.
+        The metadata will be organized under the `run["task_id"]` namespace inside the run.
+
+        For more on Neptune handlers, see https://docs.neptune.ai/logging/to_handler/
+
+        Args:
+            context: Apache Airflow Context received by the task.
+            log_context: Whether to log the contents of the Context keyword arguments.
+
+        Returns:
+            Neptune Handler object that can be used for logging.
+            For some common methods to log metadata, see https://docs.neptune.ai/logging/methods/
+
+        Example:
+            with DAG(
+                ...
+            ) as dag:
+                def task_1(**context):
+                    task_handler = get_task_handler_from_context(context)
+                    task_handler["some_metric"] = 0.99
+
+        For more, see the docs:
+            Tutorial: https://docs.neptune.ai/integrations/airflow/
+            API reference: https://docs.neptune.ai/api/integrations/airflow/
+        """
         if not self.base_handler or self.dag_run_id != context["dag_run"].run_id:
             base_namespace = context["ti"].task_id
             with self.get_run_from_context(context, False) as run:
