@@ -85,7 +85,7 @@ class NeptuneLogger:
         with DAG(
             ...
         ) as dag:
-            def task_1(**context):
+            def task(**context):
                 neptune_logger = NeptuneLogger()
 
     For more, see the docs:
@@ -143,9 +143,11 @@ class NeptuneLogger:
             with DAG(
                 ...
             ) as dag:
-                def task_1(**context):
-                    run = get_run_from_context(context)
-                    run["some_field"] = "some metadata"
+                def task(**context):
+                    neptune_logger = NeptuneLogger()
+                    ...
+                    with logger.get_run_from_context(context=context, log_context=log_context) as neptune_run:
+                        neptune_run["some_metric"] = 0.99
 
         For more, see the docs:
             Tutorial: https://docs.neptune.ai/integrations/airflow/
@@ -183,9 +185,12 @@ class NeptuneLogger:
             with DAG(
                 ...
             ) as dag:
-                def task_1(**context):
-                    task_handler = get_task_handler_from_context(context)
-                    task_handler["some_metric"] = 0.99
+                def task(**context):
+                    neptune_logger = NeptuneLogger()
+                    ...
+                    with logger.get_task_handler_from_context(context=context, log_context=log_context) as handler:
+                        handler["some_metric"] = 0.99
+                        # Result: 0.99 is logged under the field "task_id/some_metric" of the Neptune run
 
         For more, see the docs:
             Tutorial: https://docs.neptune.ai/integrations/airflow/
