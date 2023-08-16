@@ -223,6 +223,10 @@ def _log_context(context: Dict[str, Any], neptune_run: Union[Run, Handler]) -> N
 
                     neptune_run[f"context/{field}/inversed_deprecated_options/{key}"] = stringify_unsupported(value)
 
+                # configparser.ConverterMapping object has nested 'None' values in it's '_data' attribute
+                if "_converters" in to_log.__dict__:
+                    conv = to_log.__dict__["_converters"]
+                    conv._data = stringify_unsupported(conv._data)
             neptune_run[f"context/{field}"] = stringify_unsupported(to_log.__dict__)
 
     for key in _context:
