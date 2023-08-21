@@ -223,7 +223,8 @@ def _log_context(context: Dict[str, Any], neptune_run: Union[Run, Handler]) -> N
 
                     neptune_run[f"context/{field}/inversed_deprecated_options/{key}"] = stringify_unsupported(value)
 
-            neptune_run[f"context/{field}"] = stringify_unsupported(to_log.__dict__)
+            to_log_dict = copy(to_log.__dict__)
+            neptune_run[f"context/{field}"] = stringify_unsupported(to_log_dict)
 
     for key in _context:
         neptune_run[f"context/{key}"] = str(_context[key])
