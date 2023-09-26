@@ -153,7 +153,7 @@ class NeptuneLogger:
             Tutorial: https://docs.neptune.ai/integrations/airflow/
             API reference: https://docs.neptune.ai/api/integrations/airflow/
         """
-        if self.run and self.run._state == ContainerState.STOPPED:
+        if self.run and self.run.get_state() == ContainerState.STOPPED:
             self.run = None
 
         if not self.run or self.dag_run_id != context["dag_run"].run_id:
